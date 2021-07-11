@@ -1,0 +1,27 @@
+5. Identify the Constructors for each of the following methods and classify each method as either a "Static" or a "Prototype" method:
+
+substring
+create
+fromCharCode
+slice
+toString
+
+from any of:
+String, Object, Array, and Number
+
+String:
+substring (Prototype)
+fromCharCode (Static)
+slice (Prototype)
+toString (Prototype)
+
+Object:
+create (Static)
+toString (Prototype)
+
+Array:
+slice (Prototype)
+toString (Prototype)
+
+Number:
+toString (Prototype)
