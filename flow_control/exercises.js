@@ -50,13 +50,68 @@ function evenOrOdd(n) {
     console.log('odd')
   }
 }
-
+/*
 evenOrOdd(2);
 evenOrOdd(4);
 evenOrOdd(1);
 evenOrOdd(3);
 evenOrOdd(3.3);
 evenOrOdd('qux')
+*/
+
+// refactor ternary if
+
+function foo() {
+  return true;
+}
+function qux() {
+  return "qux";
+}
 
 
+function baz() {
+  // refactor to use an if statement
+  return foo() ? 'bar' : qux();
+}
+
+function re_baz() {
+  if (foo()) {
+    return 'bar'
+  } else {
+    return qux();
+  }
+}
  
+// console.log(baz());
+// console.log(re_baz());
+
+function allCaps(str='', length = 10) {
+  return  (str.length > 10) ? str.toUpperCase() : str;
+}
+
+// console.log(allCaps('is short.'));
+// console.log(allCaps('This is a little longer.'));
+
+/*Write a function that logs whether a number is 
+between 0 and 50 (inclusive),
+ between 51 and 100 (inclusive), 
+ greater than 100, 
+ or less than 0.
+ */ 
+function numberRange(n) {
+  if (n < 0) {
+    return `${n} is less than 0`;
+  }
+  else if (n <= 50) {
+    return `${n} is between 0 and 50.`;
+  } else if (n <= 100) {
+    return `${n} is between 51 and 100.`
+  } else {
+    return `${n} is greater than 100.`;
+  }
+}
+
+console.log(numberRange(3));
+console.log(numberRange(52));
+console.log(numberRange(-1));
+console.log(numberRange(101));
