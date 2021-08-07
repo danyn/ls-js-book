@@ -1,3 +1,16 @@
+let match = require('./match');
+
+// Homonyms (contextual meaning)
+/**
+ ? 
+ a? (zero or one a) Quantifer
+ a+? (one or more a lazy) Modifies a Quantifier to take shortest possible match
+
+ ^
+ ^a  Anchor (sentence starts with a) positional argument
+ [^abc] Negation (sequence must not inlucde a or b or c)
+
+ */
 /** 
  * Character classes uses [abc]
  * this allows the string to be split into 
@@ -13,65 +26,6 @@
  *                    -> [ * + ?  ()  {} | / . $] these are not meta any more as [] a character class
  * 
  */
-
-
-function synoms() {
-  arr = ['car', 'cat'];
-  // character class + alternation
-  match(/[cr](at|ar)/);
-  // alternation + alternation
-  match(/(c|r)(at|ar)/);
-}
-// synoms();
-/**
- * the match is the same but only alternation produces submatches
-  car [ 'car', 'ar', index: 0, input: 'car']
-  cat [ 'cat', 'at', index: 0, input: 'cat ]
-  car [ 'car', 'c', 'ar', index: 0, input: 'car']
-  cat [ 'cat', 'c', 'at', index: 0, input: 'cat']
- */
-
-function characterClassesConcat() {
-  arr = ["a2", "Model 640c1", "a1 a2 a3 b1 b2 b3 c1 c2 c3 d1 d2 d3"];
-  // concatenate character classes in order
-  match(/[abc][123]/g);
-}
-// characterClassesConcat();
-
-function characterClassRanges() {
-  arr = ['abcdefghijklmnopqrstuvwxyz', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', '0987654321'];
-  rgx1 = /[a-z]/g; // lower case alpabet;
-  rgx2 = /[a-z]/ig; // entire alphabet;
-  rgx3 = /[k-p]/g;
-  rgx4 = /[0-9]/g;
-  rgxs = [rgx1, rgx2, rgx3, rgx4 ];
-  for (rgx of rgxs) {
-    console.log(rgx); 
-    match(rgx);
-  }
-}
-// characterClassRanges();
-
-function hexaDecimal() {
-  arr = ['D', 'E', 'F', '1', '2f' ];
-  // match(/[a-fA-F0-9]/);
-  
-}
-// hexaDecimal();
-
-function negation() {
-  // negation is like subtraction 
-  // it goes from ^ to the argument on its right
-  // match(/[a-p][^aeiou]/ig);
-  // any of a-p then followed by anything that is not aeiou
-  // match(/[^bdfhjlnprtvxz]/gi);
-  // negation always occurs inside  a character class [^1234]
-  // because the same symbole ^ used outside of [] means match from start 
-  //  so [^] => negation and ^ => anchor start
-  match(/[^b]at/g, 'fat mat bat mick');
-
-}
-// negation();
 
 
 /**
@@ -95,38 +49,13 @@ function negation() {
  *
 */
 
-function anyChar() {
-  s = `a
-  very good 6^ l;'".? `;
-  match(/./gm, s);
-  match(/[^]/gm, s);
-}
-// anyChar();
-
-function whiteSpace() {
-  arr = ['four score', 'four-score\t', 'four\rscore', 'four-score'];
-  match(/\s/g);
-}
-// whiteSpace();
-
-function nonWhiteSpace() {
-  arr = ['four score', 'four-score\t', 'four\rscore', 'four-score'];
-  match(/\S/g);
-  match(/./g); //same as above but includes but ' ' and  excludes  \n \r
-}
-// nonWhiteSpace(); 
-match(/\S/, '\t\v\r\n\f '); //-> null
-match(/./g, '\t\f\n\r\v '); //-> [ '\t', '\f', '\x0B', ' ' ] excludes \n \r
 
 // https://launchschool.com/books/regex/read/anchors
-/**
- * ANCHORS
+/** ANCHORS
  * 
- * ^start
- * 
- * end$
- * 
+ * ^start , end$
  * \b word boudary 
+ * 
  * word boudnary matches work at the beginning of a string the end of
  * a string and between word characters where one non word character separates
  * where word characters are [A-Za-z0-9_]
@@ -140,22 +69,27 @@ match(/./g, '\t\f\n\r\v '); //-> [ '\t', '\f', '\x0B', ' ' ] excludes \n \r
 // https://launchschool.com/books/regex/read/quantifiers
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions/Quantifiers
 
-/**
-  These quantifiers match the character to the left once and then repeat
-  as many timers as the rule of the quantifier yields.
+/** Quantifiers (how many)
+ 
+  quantifiers match the argument to the left once and then repeat
+  as many timers as the rule for quantifier 
 
   ###################
   Preset Quantifiers: * (zero or more), + (one or more), ? (zero or one)
   ###################
 
-  Star: * matches zero or more so it needs to use word boundaries and be in the middle of a match
+  Star: * == {0,} matches zero or more 
   'bag bg baag rag raag'.match(/\bba*g\b/g)->[ 'bag', 'bg', 'baag' ]
+  needs to use word boundaries and be in the middle of a match othewise it matches anyting
 
-  Plus: + one or more
+  Question mark: ?  == {0,1} zero or one 
+  'bag bg baag rag raag'.match(/\bba?g\b/g) -> [ 'bag', 'bg' ]
+  should occur using \b (word boundaries) and inside words, othwerwise matches anything.
+
+  Plus: +  == {1,} one or more
   'bag bg baag rag raag'.match(/\bba+g\b/g) -> [ 'bag', 'baag' ]
 
-  Question mark: ? zero or one again should occur using \b (word boundaries) etc.
-  'bag bg baag rag raag'.match(/\bba?g\b/g) -> [ 'bag', 'bg' ]
+
   This is useful in dates
   '2017-01-11'.match(/\b\d{4}-?\d{2}-?\d{2}\b/g) ->[ '2017-01-11' ]
   '20170111'.match(/\b\d{4}-?\d{2}-?\d{2}\b/g) -> [ '20170111' ]
@@ -192,22 +126,96 @@ match(/./g, '\t\f\n\r\v '); //-> [ '\t', '\f', '\x0B', ' ' ] excludes \n \r
 
   */
 
-/**
+/** Lazy Quantifier ? => ({1,}?) follows a quantifier +?, *?, ??
  Greedy Matching:
- 
  Regex will try to match the longest possible string.  This is not a concern when words are well
  defined and use /\bexpression\b/ word boundaries.
  When matching inside of words for the small possible match you just use
- 
- Question mark ? after the quantifier. This makes question mark overloaded akwardly
- because: ? as a quantifier also means (zero or one)
-'cat caat ct rat raat rt'.match(/ca?t/g) ->[ 'cat', 'ct' ]
 
-      needs some thought if required:
       https://d186loudes4jlv.cloudfront.net/regex/files/greedy-vs-lazy.pdf
-      really only matters when using large character classes like .(anything) and no \b(word boundaries)
+      matters when using character classes that do not exist beside \b(word boundaries)
 
 'cataaacat caataaaacat ct rat raat rt'.match(/c.*t/g) ->[ 'cataaacat caataaaacat ct rat raat rt' ]
 'cataaacat caataaaacat ct rat raat rt'.match(/c.*?t/g) ->[ 'cat', 'cat', 'caat', 'cat', 'ct' ]
 
  */
+
+/** Not VS Startswith
+ 
+// NOT [^]
+ 'abcword xyzword  word'.match(/\b[^(abc|xyz)]word\b/g) -> [ ' word' ]
+
+
+// Starts with ^expression means the whole String starts 
+  as opossed to boundaries \b \b which  are often more useful.  
+  this does not match since the whole string only starts with abc:
+  'abcword xyzword lmnword word'.match(/\b^(abc|xyz)word\b/g) -> [ 'abcword' ]
+  This matches as you would think:
+  'abcword xyzword lmnword word'.match(/\b(abc|xyz)word\b/g) -> [ 'abcword', 'xyzword' ]
+
+ */
+
+  /** Back References
+   *  Back references use a capture group to match the next occurance
+   * This can be used like an OR kind of behaviour
+
+   'I said, "Can you open the time portal"'.match(/".{1,}"/)
+    [
+      '"Can you open the time portal"',
+      index: 8,
+      input: 'I said, "Can you open the time portal"',
+      groups: undefined
+    ]
+    "I said, 'Can you open the time portal'".match(/".{1,}"/)
+    null
+
+    "I said, 'Can you open the time portal'".match(/(["']).{1,}\1/)
+    [
+      "'Can you open the time portal'",
+      "'",
+      index: 8,
+      input: "I said, 'Can you open the time portal'",
+      groups: undefined
+    ]
+    Here \1 is a  "backreference" which is just the 1st capture group
+   
+    ####### You can also name the group if wanted:
+    "I said, 'Can you open the time portal'".match(/(?<quo>["']).{1,}\k<quo>/)
+    [
+      "'Can you open the time portal'",
+      "'",
+      index: 8,
+      input: "I said, 'Can you open the time portal'",
+      groups: [Object: null prototype] { quo: "'" }
+    ]
+
+    #### OR like behaviour of capture groups applications:
+    if text.match(/".*?"/) || text.match(/'.*?'/) -> "Got a quoted string"
+
+   */
+
+/**Find and Replace (Replacement)
+ 
+  'holy fuck, did you see that? No, that is crap'.replace(/fuck|crap/g, '****')
+   -> 'holy ****, did you see that? No, that is ****'
+ 
+  Can be used with backreferences:
+  'He said, "you are the best"'.replace(/(['"]).+?\1/, '$1you are the fastest$1')
+   ->'He said, "you are the fastest"'
+*/
+
+/** EXAMPLES */
+
+function negation() {
+  // negation is like subtraction 
+  // it goes from ^ to the argument on its right
+  // match(/[a-p][^aeiou]/ig);
+  // any of a-p then followed by anything that is not aeiou
+  // match(/[^bdfhjlnprtvxz]/gi);
+  // negation always occurs inside  a character class [^1234]
+  // because the same symbole ^ used outside of [] means match from start 
+  //  so [^] => negation and ^ => anchor start
+  // console.log('fat mat bat'.match(/[^b]at/g)); //['fat', 'mat']
+  console.log('abccat defcat'.match(/\b[^(abc)].{3}(cat){1}\b/g));
+}
+negation();
